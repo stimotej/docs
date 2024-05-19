@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
+    "title": "Rentiqe",
+    "description": "Rentiqe API",
     "license": {
       "name": "MIT"
     },
@@ -10,45 +10,152 @@
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
-    }
-  ],
-  "security": [
-    {
-      "bearerAuth": []
+      "url": "https://rentiqe.com/api"
     }
   ],
   "paths": {
-    "/plants": {
+    "/listings": {
       "get": {
-        "description": "Returns all plants from the system that the user has access to",
+        "description": "Renturns paginated listings",
         "parameters": [
+          {
+            "name": "locale",
+            "in": "query",
+            "description": "The locale of the listing",
+            "schema": {
+              "type": "string",
+              "default": "en",
+              "enum": ["en", "hr"]
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "The order of the listings",
+            "schema": {
+              "type": "string",
+              "enum": ["date-asc", "date-desc", "price-asc", "price-desc"]
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "The search query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "categories",
+            "in": "query",
+            "description": "The category ids of the listing",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "locations",
+            "in": "query",
+            "description": "The location ids of the listing",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "description": "The date period when the listings are available",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "from": {
+                  "type": "string",
+                  "format": "date",
+                  "description": "In YYYY-MM-DD format"
+                },
+                "to": {
+                  "type": "string",
+                  "format": "date",
+                  "description": "In YYYY-MM-DD format"
+                }
+              }
+            }
+          },
+          {
+            "name": "price",
+            "in": "query",
+            "description": "The price range of the listing in format [min, max]",
+            "schema": {
+              "type": "array",
+              "format": "int64",
+              "items": {
+                "type": "number"
+              }
+            }
+          },
+          {
+            "name": "bounds",
+            "in": "query",
+            "description": "If provided the listings that are located within the bounds will be returned. It should be in format [west, south, east, north]",
+            "schema": {
+              "type": "array",
+              "format": "int64",
+              "items": {
+                "type": "number"
+              }
+            }
+          },
           {
             "name": "limit",
             "in": "query",
-            "description": "The maximum number of results to return",
+            "description": "The number of listings to return, 1 - 100",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "number",
+              "default": 25,
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "The cursor to paginate the listings",
+            "schema": {
+              "type": "number"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Plant response",
+            "description": "Listings response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
+                  "type": "object",
+                  "properties": {
+                    "listings": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": "string",
+                      "description": "Id the of the next (not returned) listing. It will be presented only if there are more listings to return"
+                    }
                   }
                 }
               }
             }
           },
           "400": {
-            "description": "Unexpected error",
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
@@ -96,18 +203,18 @@
         }
       }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
+    "/listings/{slug}": {
+      "get": {
+        "description": "Returns a listing by slug",
         "parameters": [
           {
-            "name": "id",
+            "name": "slug",
             "in": "path",
-            "description": "ID of plant to delete",
+            "description": "Slug of the listing to return",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string",
+              "format": "string"
             }
           }
         ],
@@ -117,7 +224,7 @@
             "content": {}
           },
           "400": {
-            "description": "unexpected error",
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
@@ -133,9 +240,7 @@
   "components": {
     "schemas": {
       "Plant": {
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "type": "object",
         "properties": {
           "name": {
@@ -154,9 +259,7 @@
             "$ref": "#/components/schemas/Plant"
           },
           {
-            "required": [
-              "id"
-            ],
+            "required": ["id"],
             "type": "object",
             "properties": {
               "id": {
@@ -169,17 +272,13 @@
         ]
       },
       "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
+        "required": ["code", "name"],
         "type": "object",
         "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
+          "code": {
+            "type": "string"
           },
-          "message": {
+          "name": {
             "type": "string"
           }
         }
