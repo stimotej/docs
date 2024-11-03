@@ -5,7 +5,7 @@
     "dark": "/logo/dark.svg",
     "light": "/logo/light.svg"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/favicon.ico",
   "colors": {
     "primary": "#5a47d1",
     "light": "#6c59e3",
@@ -19,12 +19,6 @@
     "name": "Open app",
     "url": "https://rentiqe.com"
   },
-  "tabs": [
-    {
-      "name": "API Reference",
-      "url": "api-reference"
-    }
-  ],
   "anchors": [
     {
       "name": "Rentiqe",
@@ -34,18 +28,17 @@
   ],
   "navigation": [
     {
-      "group": "Get Started",
-      "pages": ["introduction", "faq"]
-    },
-    {
-      "group": "API Documentation",
-      "pages": ["api-reference/introduction"]
-    },
-    {
-      "group": "Listings",
+      "group": "",
       "pages": [
-        "api-reference/listings/get",
-        "api-reference/listings/get-single"
+        "introduction",
+        "getting-started",
+        "for-customers",
+        "for-renters",
+        "insurance-and-security",
+        "individual-profiles-store-reviews-and-ratings",
+        "tips-and-best-practices",
+        "faq",
+        "support-and-contact"
       ]
     }
   ],
